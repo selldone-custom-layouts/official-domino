@@ -12,10 +12,12 @@
 //   PAGES="home=/,…" (default: home)   WIDTHS=1440,390,1100,2880 (default)   STORAGE='{…}' (theme)
 //   WORDS=".hero-words a,…" (default: every Domino word over a photo slot or a collection photo)
 // Prints each word with its ratio, the failures as "LOW", and "TOTAL n" (the failures). Deliver at 0.
-const PW = process.env.PW || "H:/Selldone Projects/Kalio Sample Shop Claude/kalio-marketplace/node_modules/playwright";
+/* Playwright: PW (a path to the package), else the installed package, else the workspace's copy beside this repo */
+const PW = process.env.PW || (() => { try { return require.resolve("playwright"); } catch { return require("path").resolve(__dirname, "../../kalio-marketplace/node_modules/playwright"); } })();
 const path = require("path");
 const { chromium } = require(PW);
-const sharp = require(process.env.SHARP || path.join(path.dirname(PW), "sharp"));
+/* sharp: SHARP (a path to the package), else the installed package, else the workspace's copy beside this repo */
+const sharp = require(process.env.SHARP || (() => { try { return require.resolve("sharp"); } catch { return require("path").resolve(__dirname, "../../kalio-marketplace/node_modules/sharp"); } })());
 const base = (process.argv[2] || "http://localhost:9140").replace(/\/$/, "");
 const WAIT = process.argv[3] || ".ftr";
 const PAGES = (process.env.PAGES || "home=/").split(",").map((s) => s.split("="));

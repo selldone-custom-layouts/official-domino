@@ -141,6 +141,8 @@ Leave `LAYOUT_ID` out on the first upload; use the id printed after it from then
 
 Selldone shows a loading screen while the Layout starts. Domino has its own, set per domain (Selldone › your shop › **Domains** › the domain › **Loading**, mode **custom**): the cocoa ground, a fine pistachio ring turning, a cupcake drawing itself inside it, and the shop's name in the header's lower-case italic with the pistachio dot, so nothing jumps when the page arrives. No fake percentage; a still frame for reduced motion; a short fade when Selldone says the app has loaded.
 
+<p align="center"><img src="docs/screenshots/loading.png" alt="Domino's loading screen: a pistachio arc on a fine ring around a cupcake drawing, and the shop's name as the italic wordmark, on cocoa" width="720"></p>
+
 It is generated, so it works with any brand: the motion lives only in the ring and the drawing, never in the name or logo.
 
 ```bash

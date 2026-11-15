@@ -17,13 +17,27 @@
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
+import { createRequire } from "node:module";
+import { fileURLToPath } from "node:url";
 
 const APP = path.resolve(process.argv[2] || "dist/app");
 const OUT = path.resolve(process.argv[3] || "docs/dev-shots/splash");
 const SHOP = (process.env.SHOP_URL || "https://domino.selldone.shop").replace(/\/$/, "");
 const PORT = Number(process.env.PORT || 9147);
 const BASE = `http://localhost:${PORT}`;
-const PW = process.env.PW || "H:/Selldone Projects/Kalio Sample Shop Claude/kalio-marketplace/node_modules/playwright/index.js";
+/* Playwright and sharp: PW / SHARP (paths to their entry files), else the installed packages, else the
+   workspace's copies beside this repo */
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const find = (env, pkg, entry) => {
+  if (process.env[env]) return process.env[env];
+  try {
+    return createRequire(import.meta.url).resolve(pkg);
+  } catch {
+    return path.resolve(HERE, "../../kalio-marketplace/node_modules", pkg, entry);
+  }
+};
+const PW = find("PW", "playwright", "index.js");
+const SHARP = find("SHARP", "sharp", "dist/index.cjs");
 const MIME = { ".js": "text/javascript", ".mjs": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".webp": "image/webp", ".woff2": "font/woff2", ".json": "application/json" };
 fs.mkdirSync(OUT, { recursive: true });
 if (!fs.existsSync(path.join(APP, "shop.js"))) {
@@ -73,7 +87,13 @@ const server = http
 
 const pw = await import("file:///" + PW.replace(/\\/g, "/"));
 const chromium = pw.chromium || pw.default?.chromium;
-const sharp = (await import("file:///" + path.join(path.dirname(PW), "..", "sharp", "dist", "index.mjs").replace(/\\/g, "/")).catch(() => null))?.default || null;
+const sharp = (() => {
+  try {
+    return createRequire(import.meta.url)(SHARP);
+  } catch {
+    return null;
+  }
+})();
 const browser = await chromium.launch();
 let total = 0;
 const bad = (msg) => { total++; console.log("FAIL " + msg); };

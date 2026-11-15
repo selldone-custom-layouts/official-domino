@@ -60,6 +60,8 @@ If `/` shows a Page Builder landing page while `/shop` shows the Layout, the Hom
 
 While the Layout starts, Selldone shows the domain's loading screen. Don't leave Selldone's default animation: Domino has its own, and it is set **per domain**, on the same domain that carries the Layout (Bakio: `domino.selldone.shop`, domain 1248). It is the cocoa ground, a fine pistachio ring turning, a cupcake line drawing itself inside it, and the shop's name in the header's lower-case italic with the pistachio dot, so nothing jumps when the page arrives.
 
+![Domino's loading screen](https://raw.githubusercontent.com/selldone-custom-layouts/official-domino/main/docs/screenshots/loading.png)
+
 1. **Make it for your brand.** Edit `scripts/loading/configs/domino.json`: your shop's name in `"name"`, or your logo as an **https** link in `"logo"` (any shape; it sits in a fixed box, fitted), the drawing in `"art"` (`croissant`, `cupcake`, `tart`, `whisk` or `none`), your colours (`bg`, `ink`, `muted`, `accent`, `line`, `dot`). Then:
 
    ```bash

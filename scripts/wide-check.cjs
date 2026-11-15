@@ -22,7 +22,8 @@
 // Prints each finding and "TOTAL n". Deliver at 0.
 const fs = require("fs");
 const path = require("path");
-const PW = process.env.PW || "H:/Selldone Projects/Kalio Sample Shop Claude/kalio-marketplace/node_modules/playwright";
+/* Playwright: PW (a path to the package), else the installed package, else the workspace's copy beside this repo */
+const PW = process.env.PW || (() => { try { return require.resolve("playwright"); } catch { return require("path").resolve(__dirname, "../../kalio-marketplace/node_modules/playwright"); } })();
 const { chromium } = require(PW);
 const base = (process.argv[2] || "http://localhost:9140").replace(/\/$/, "");
 const WAIT = process.argv[3] || ".ftr";
@@ -33,7 +34,7 @@ const WIDTHS = (process.env.WIDTHS || "1100,1440,1920,2560,2880,3840,5120").spli
 const SHOTS = process.env.SHOTS ? path.resolve(process.env.SHOTS) : "";
 let sharp = null;
 if (SHOTS) {
-  try { sharp = require(path.join(path.dirname(PW), "sharp")); } catch (e) { sharp = null; }
+  try { sharp = require(process.env.SHARP || (() => { try { return require.resolve("sharp"); } catch { return require("path").resolve(__dirname, "../../kalio-marketplace/node_modules/sharp"); } })()); } catch (e) { sharp = null; }
   fs.mkdirSync(SHOTS, { recursive: true });
 }
 

@@ -8,7 +8,8 @@
 // Usage: node scripts/underline-check.cjs <base> [wait-selector]
 //   PAGES="home=/,…" WIDTHS=1440,390 STORAGE='{"bakini-theme":"{\"palette\":\"caramel\",\"mode\":\"dark\"}"}' MAX=80
 // Prints each finding and "TOTAL n". Deliver at 0.
-const PW = process.env.PW || "H:/Selldone Projects/Kalio Sample Shop Claude/kalio-marketplace/node_modules/playwright";
+/* Playwright: PW (a path to the package), else the installed package, else the workspace's copy beside this repo */
+const PW = process.env.PW || (() => { try { return require.resolve("playwright"); } catch { return require("path").resolve(__dirname, "../../kalio-marketplace/node_modules/playwright"); } })();
 const { chromium } = require(PW);
 const base = (process.argv[2] || "http://localhost:9135").replace(/\/$/, "");
 const WAIT = process.argv[3] || ".ftr";

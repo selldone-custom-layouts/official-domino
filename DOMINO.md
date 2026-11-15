@@ -214,6 +214,13 @@ Seen at 1440, 1920, 2560, 3840 and 5120 (home, a collection, a product, About, t
 photo, How ordering works and the journal share the frame's two edges; every wrap (header, page, footer)
 shares the same content edges.
 
+**Docs from live 1.0.3** (pinned on domain 1248 by the coordinator): `scripts/doc-shots.cjs` retook
+`docs/screenshots/` (cover, desktop 1440 and phone 390 of home, collection, product and a filled bag, the
+dark home, the Theme row) and adds `loading.png` (the domain's loading screen from `scripts/loading/`, still,
+as with reduced motion). Every check tool now finds Playwright and sharp through `PW` / `SHARP`, else the
+installed package, else the workspace's copy beside the repo (a relative path): no absolute Windows path in
+the repository.
+
 At 390 the probe would count the selection rows' collection label ("Danish Pastries", two words on two
 lines in the mockup's 52px index column, 37px wide): the phone design, not a squeeze; the probe's widths
 are 1100 and up.

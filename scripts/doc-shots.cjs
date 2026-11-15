@@ -1,13 +1,16 @@
 // docs/screenshots from the live shop: desktop 1440×900 and phone 390×844 (home, collection, product,
-// a filled bag), the dark home on both, the Theme row, and a 2400×1260 cover.
+// a filled bag), the dark home on both, the Theme row, a 2400×1260 cover, and the loading screen
+// (loading.png, from scripts/loading/; ONLY=loading takes just that one, with no shop loaded).
 //   node --use-system-ca scripts/doc-shots.cjs [base=https://domino.selldone.shop]
 // One browser, one page at a time (the live shop rate-limits parallel browsers). The bag is filled
 // through the Layout's own "Add to bag" (a guest bag; nothing is ordered) and emptied again at the end.
 "use strict";
 const path = require("path");
 const fs = require("fs");
-const { chromium } = require("H:/Selldone Projects/Kalio Sample Shop Claude/kalio-marketplace/node_modules/playwright");
-const sharp = require("H:/Selldone Projects/Kalio Sample Shop Claude/kalio-marketplace/node_modules/sharp");
+/* Playwright: PW (a path to the package), else the installed package, else the workspace's copy beside this repo */
+const { chromium } = require(process.env.PW || (() => { try { return require.resolve("playwright"); } catch { return require("path").resolve(__dirname, "../../kalio-marketplace/node_modules/playwright"); } })());
+/* sharp: SHARP (a path to the package), else the installed package, else the workspace's copy beside this repo */
+const sharp = require(process.env.SHARP || (() => { try { return require.resolve("sharp"); } catch { return require("path").resolve(__dirname, "../../kalio-marketplace/node_modules/sharp"); } })());
 const base = (process.argv[2] || "https://domino.selldone.shop").replace(/\/$/, "");
 const OUT = path.resolve(__dirname, "../docs/screenshots");
 fs.mkdirSync(OUT, { recursive: true });
@@ -69,7 +72,25 @@ async function shoot(phone, mode, jobs, after) {
   if (after) await after(pg);
   await browser.close();
 }
+/* The loading screen (scripts/loading/: the domain's custom loading, made from configs/domino.json), still as
+   with reduced motion, at 1440 × 900: docs/screenshots/loading.png. A local file; it loads no shop. */
+async function loadingShot() {
+  const os = require("os");
+  const { pathToFileURL } = require("url");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "domino-loading-"));
+  require("child_process").execFileSync(process.execPath, [path.join(__dirname, "loading", "make-loading.cjs"), path.join(__dirname, "loading", "configs", "domino.json"), dir], { stdio: "ignore" });
+  const browser = await chromium.launch();
+  const p = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1, reducedMotion: "reduce" });
+  await p.goto(pathToFileURL(path.join(dir, "loading-preview.html")).href);
+  await p.evaluate(() => document.fonts.ready);
+  await p.waitForTimeout(900);
+  await p.screenshot({ path: path.join(OUT, "loading.png") });
+  await browser.close();
+  console.log("loading");
+}
 (async () => {
+  await loadingShot();
+  if (process.env.ONLY === "loading") return;
   for (const phone of [false, true]) {
     const k = phone ? "phone" : "desktop";
     await shoot(
