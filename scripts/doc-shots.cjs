@@ -1,6 +1,7 @@
 // docs/screenshots from the live shop: desktop 1440×900 and phone 390×844 (home, collection, product,
 // a filled bag), the dark home on both, the Theme row, a 2400×1260 cover, and the loading screen
-// (loading.png, from scripts/loading/; ONLY=loading takes just that one, with no shop loaded).
+// (loading.png, from scripts/loading/). ONLY=desktop-category,… retakes just those (and the cover);
+// ONLY=loading takes just the loading screen, with no shop loaded.
 //   node --use-system-ca scripts/doc-shots.cjs [base=https://domino.selldone.shop]
 // One browser, one page at a time (the live shop rate-limits parallel browsers). The bag is filled
 // through the Layout's own "Add to bag" (a guest bag; nothing is ordered) and emptied again at the end.
@@ -33,6 +34,15 @@ async function settle(pg, ms = 3000) {
   await pg.evaluate(() => Promise.all([...document.images].filter((i) => !i.complete).map((i) => new Promise((r) => { i.onload = i.onerror = r; setTimeout(r, 6000); }))));
   await pg.waitForTimeout(1200);
   await pg.evaluate(() => window.scrollTo(0, 0));
+  /* every picture in the window drawn (a card whose sized photo fails falls back to the original, which
+     is a second request: wait for that one too), at most 20 s */
+  await pg
+    .waitForFunction(
+      () => [...document.images].filter((i) => { const r = i.getBoundingClientRect(); return r.width > 20 && r.bottom > 0 && r.top < innerHeight; }).every((i) => i.complete && i.naturalWidth > 0),
+      null,
+      { timeout: 20000, polling: 250 },
+    )
+    .catch(() => console.log("  (some pictures still loading after 20 s)"));
   await pg.waitForTimeout(600);
 }
 async function emptyBag(pg) {
@@ -47,7 +57,14 @@ async function emptyBag(pg) {
   }
   console.log("bag emptied:", (await pg.locator("button.cr-rm").count()) === 0);
 }
+/* ONLY="desktop-category,phone-home": retake just those (and the cover); ONLY=loading: just the loading screen */
+const only = (process.env.ONLY || "").split(",").filter(Boolean);
 async function shoot(phone, mode, jobs, after) {
+  if (only.length) {
+    jobs = jobs.filter(([name]) => only.includes(name));
+    if (!jobs.length) return;
+    if (!jobs.some(([name]) => /-cart$/.test(name))) after = null;
+  }
   const browser = await chromium.launch();
   const ctx = await browser.newContext({
     viewport: phone ? { width: 390, height: 844 } : { width: 1440, height: 900 },
@@ -89,8 +106,8 @@ async function loadingShot() {
   console.log("loading");
 }
 (async () => {
-  await loadingShot();
-  if (process.env.ONLY === "loading") return;
+  if (!only.length || only.includes("loading")) await loadingShot();
+  if (only.length === 1 && only[0] === "loading") return;
   for (const phone of [false, true]) {
     const k = phone ? "phone" : "desktop";
     await shoot(
