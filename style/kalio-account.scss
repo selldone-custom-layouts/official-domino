@@ -259,7 +259,7 @@
 
   h1 {
     font-family: var(--k-display);
-    font-size: clamp(30px, 3.4vw, 44px);
+    font-size: clamp(30px, calc(var(--dm-pw) * 0.034), 44px);
     font-weight: 600;
     letter-spacing: -0.02em;
     line-height: 1.05;
@@ -519,7 +519,7 @@
   &__titles {
     h2 {
       font-family: var(--k-display);
-      font-size: clamp(28px, 3vw, 40px);
+      font-size: clamp(28px, calc(var(--dm-pw) * 0.03), 40px);
       font-weight: 600;
       letter-spacing: -0.02em;
       line-height: 1.05;

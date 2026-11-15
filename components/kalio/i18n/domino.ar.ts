@@ -850,6 +850,8 @@ const ar: Record<string, string> = {
   "domino.rd.write": "راسلنا",
   "domino.rd.writeTo": "راسل المخبز",
   "domino.sample.default": "نص تجريبي — لم يكتب المتجر هذه الصفحة بعد",
+  "domino.splash.loading": "جارٍ تحميل {shop}",
+  "domino.splash.loadingShop": "جارٍ تحميل المتجر",
   "domino.strip.aria": "التوصيل والاستلام من المحل",
   "domino.strip.contact": "تواصل مع المخبز",
   "domino.strip.everyDay": "كل يوم",

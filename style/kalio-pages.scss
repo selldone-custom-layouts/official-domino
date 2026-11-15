@@ -276,7 +276,7 @@
     h1 {
       margin: 8px 0 0;
       font-family: var(--k-display);
-      font-size: clamp(38px, 4.6vw, 56px);
+      font-size: clamp(38px, calc(var(--dm-pw) * 0.046), 56px);
       font-weight: 600;
       line-height: 1;
       letter-spacing: -0.02em;
@@ -763,7 +763,7 @@
     h1 {
       margin: 14px 0 0;
       font-family: var(--k-display);
-      font-size: clamp(34px, 4.6vw, 50px);
+      font-size: clamp(34px, calc(var(--dm-pw) * 0.046), 50px);
       font-weight: 600;
       line-height: 1.06;
       letter-spacing: -0.02em;
@@ -1403,7 +1403,7 @@
   &__title {
     margin: 10px 0 24px;
     font-family: var(--k-display);
-    font-size: clamp(40px, 5.6vw, 64px);
+    font-size: clamp(40px, calc(var(--dm-pw) * 0.056), 64px);
     font-weight: 600;
     line-height: 1;
     letter-spacing: -0.025em;
@@ -1413,7 +1413,7 @@
   &__lead {
     margin: 26px 0 0;
     font-family: var(--k-display);
-    font-size: clamp(21px, 2.2vw, 27px);
+    font-size: clamp(21px, calc(var(--dm-pw) * 0.022), 27px);
     font-weight: 500;
     line-height: 1.45;
     letter-spacing: -0.01em;

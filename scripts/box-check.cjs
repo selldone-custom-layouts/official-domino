@@ -2,10 +2,12 @@
 // (The owner, 10 November 2026: cameras in "Complete your purchase" ran past their boxes onto the names;
 // "Pickup / Delivery / Limited…" rows did not start from one edge.)
 //
-// For every visible <img> on each page and state, at 1440 and 390:
+// For every visible <img> on each page and state, at 1440, 390 and the wide 2560, 2880, 3840:
 //   SPILL    the image's box runs past the nearest box that draws something (a ground, an edge, a shadow)
 //            and does not clip it (overflow visible) by more than 1px;
-//   OVERLAP  the image covers words (an element with its own text) by more than 2px each way, unless
+//   OVERLAP  the image covers words (an element with its own text) by more than 2px each way (the image is
+//            painted above them where they meet: words set on a photo slot on purpose, on its scrim, are
+//            measured by photo-contrast.cjs instead), unless
 //            the words are an overlay on purpose (positioned absolute/fixed/sticky: badges, counters).
 // For every vertical list of two or more rows that each start with an icon (.ms, .v-icon, svg, or a
 // small img) followed by words:
@@ -13,18 +15,19 @@
 //
 // Usage: node scripts/box-check.cjs <base> [home selector]
 //   PAGES="home=/,category=/x-category,…"   (default: Bakini's set)
-//   WIDTHS=1440,390   STORAGE='{"bakini-theme":"{\"palette\":\"bakini\",\"mode\":\"dark\"}"}'
+//   WIDTHS=1440,390,2560,2880,3840 (default)   STORAGE='{"bakini-theme":"{\"palette\":\"bakini\",\"mode\":\"dark\"}"}'
 //   STATES=1 (default) also opens: the Shop menu, the phone menu, a quick-buy sheet, the cart drawer and
 //   the cart page with a cart filled in the local store only (SHOP=<xapi name>, CART=<cart button>).
 // Prints each finding and "TOTAL n". Deliver at 0.
-const PW = process.env.PW || "D:/Kalio Sample Shop Claude/kalio-marketplace/node_modules/playwright";
+const PW = process.env.PW || "H:/Selldone Projects/Kalio Sample Shop Claude/kalio-marketplace/node_modules/playwright";
 const { chromium } = require(PW);
 const base = (process.argv[2] || "http://localhost:9135").replace(/\/$/, "");
 const WAIT = process.argv[3] || ".ftr";
 const PAGES = (process.env.PAGES ||
   "home=/,category=/croissants-category,deals=/?filter=%7B%22only_has_discount%22%3Atrue%7D,search=/?search=pistachio,product=/product/720375,product2=/product/720359,compare=/comparison?list=p720375_p720378_p720380,blog=/blog,404=/no-such-page,faq=/faq,contact=/contact-us,about=/about-us")
   .split(",").map((s) => s.split("="));
-const WIDTHS = (process.env.WIDTHS || "1440,390").split(",").map(Number);
+/* 2560, 2880, 3840: wider than the page (v-main stops at 1720px; the Windows zoom-out) */
+const WIDTHS = (process.env.WIDTHS || "1440,390,2560,2880,3840").split(",").map(Number);
 const SHOP = process.env.SHOP || "bakio";
 const CART = process.env.CART || ".bag-btn";
 const STATES = process.env.STATES !== "0";
@@ -78,6 +81,20 @@ function audit() {
       /* words drawn over a picture on purpose (a positioned overlay), or a picture behind a block on purpose */
       let common = t.parentElement; while (common && !common.contains(img)) common = common.parentElement;
       if (overlay(t, common) || getComputedStyle(img).position === "absolute" && getComputedStyle(img).zIndex === "-1") continue;
+      /* a photo slot under its words (the offer card, the footer's texture: the words are painted
+         above the photo, on its scrim; photo-contrast.cjs measures them): the words win where they
+         meet, so the picture covers nothing */
+      {
+        const y0 = scrollY;
+        const midY = (Math.max(r.top, tr.top) + Math.min(r.bottom, tr.bottom)) / 2;
+        if (midY < 0 || midY >= innerHeight) window.scrollTo(0, y0 + midY - innerHeight / 2);
+        const ir = img.getBoundingClientRect(), wr = t.getBoundingClientRect();
+        const cx = (Math.max(ir.left, wr.left) + Math.min(ir.right, wr.right)) / 2, cy = (Math.max(ir.top, wr.top) + Math.min(ir.bottom, wr.bottom)) / 2;
+        const stack = cx >= 0 && cy >= 0 && cx < innerWidth && cy < innerHeight ? document.elementsFromPoint(cx, cy) : [];
+        if (scrollY !== y0) window.scrollTo(0, y0);
+        const ti = stack.findIndex((e) => e === t || t.contains(e)), ii = stack.indexOf(img);
+        if (ti >= 0 && (ii < 0 || ti < ii)) continue;
+      }
       /* clipped away: the picture's visible part (inside its clipping box) does not reach the words */
       if (box && box.clips) { const b = box.p.getBoundingClientRect(); const vw = Math.min(b.right, tr.right) - Math.max(b.left, tr.left); const vh = Math.min(b.bottom, tr.bottom) - Math.max(b.top, tr.top); if (vw <= 2 || vh <= 2) continue; }
       out.push(`OVERLAP ${Math.round(w)}x${Math.round(h)}  ${path(img)} on "${t.textContent.trim().slice(0, 30)}"`);

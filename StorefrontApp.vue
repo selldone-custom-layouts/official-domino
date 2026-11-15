@@ -37,6 +37,10 @@
 
 -->
 <template>
+  <!-- Domino: the in-app splash, continuing the domain's loading frame on a
+       session's first page until the page is ready (DominoSplash.vue). Outside
+       v-app, so it is there before the shop arrives. -->
+  <domino-splash />
   <div id="banners-placeholder"></div>
   <v-app
     v-if="shop"
@@ -154,12 +158,14 @@ import TemplateMixin from "@selldone/components-vue/mixin/template/TemplateMixin
 import AuthMixin from "@selldone/components-vue/mixin/auth/AuthMixin.ts";
 import NotificationService from "@selldone/components-vue/plugins/notification/NotificationService.ts";
 import SAccessPrivateCheck from "@selldone/components-vue/storefront/access/private/check/SAccessPrivateCheck.vue";
+import DominoSplash from "./components/domino/DominoSplash.vue";
 
 export default {
   name: "StorefrontApp",
   mixins: [TemplateMixin, AuthMixin],
   components: {
     SAccessPrivateCheck,
+    DominoSplash,
     SStorefrontRetrieveShareOrder: defineAsyncComponent(
       () =>
         import(

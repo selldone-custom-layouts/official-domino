@@ -19,6 +19,12 @@
 // - The mockup's footer theme band (.ts-*) -> .dts-* (the kit's
 //   ThemeSwitcherRow owns .ts-*); keyframes -> dm-*.
 // - pages.css (the inner pages, 13 November 2026) comes last, as in the mockup.
+// - Sizes that grow with the screen read the page's own width, never the window's: every
+//   "<n>vw" becomes "calc(var(--dm-pw) * <n/100>)" (100vw -> var(--dm-pw)). --dm-pw is the
+//   width of the page the rule sits in (style/domino-theme.scss): v-main stops at 1720px, so
+//   on a 4K screen or a Windows zoom-out (50% = 2880px) a vw-sized gap ran past the page and
+//   squeezed its text columns (Domino 1.0.2: the home journal's titles 13px wide at 2880).
+//   Fixed layers (the panels, the menu, the toast) keep vw: the window is their box.
 // Re-run after the mockup changes; style/domino/ is generated, never edited.
 const fs = require("fs");
 const path = require("path");
@@ -31,6 +37,13 @@ const FILES = ["domino", "b", "pages"];
 const KEYFRAMES = new Map();
 
 const renameVars = (v) => v.replace(/var\(\s*--(?!dm-)([\w-]+)/g, "var(--dm-$1");
+
+/* "8.4vw" -> "calc(var(--dm-pw) * 0.084)", "100vw" -> "var(--dm-pw)": the page's width. */
+const pageWidth = (v) =>
+  v.replace(/(^|[^\w.-])(\d*\.?\d+)vw\b/g, (m, pre, n) => pre + (Number(n) === 100 ? "var(--dm-pw)" : `calc(var(--dm-pw) * ${Number((Number(n) / 100).toFixed(5))})`));
+/* A fixed layer is sized from the window. */
+const windowSized = (rule) =>
+  !!rule && rule.type === "rule" && (/\.(panel|menu|toast)\b/.test(rule.selector) || (rule.nodes || []).some((n) => n.type === "decl" && n.prop === "position" && /fixed/.test(n.value)));
 
 function scopeSelector(sel) {
   sel = sel
@@ -117,6 +130,7 @@ for (const name of FILES) {
   root.walkDecls((d) => {
     if (d.prop.startsWith("--") && !d.prop.startsWith("--dm-")) d.prop = "--dm-" + d.prop.slice(2);
     d.value = renameVars(d.value);
+    if (/vw\b/.test(d.value) && !windowSized(d.parent)) d.value = pageWidth(d.value);
     if (/^animation(-name)?$/.test(d.prop)) for (const [a, b] of KEYFRAMES) d.value = d.value.replace(new RegExp(`\\b${a}\\b`, "g"), b);
   });
   const css = root.toString();

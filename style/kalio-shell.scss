@@ -863,7 +863,7 @@ $k-header-strip: 46px;
     margin: 0;
     max-width: 380px;
     font-family: var(--k-display);
-    font-size: clamp(28px, 2.8vw, 36px);
+    font-size: clamp(28px, calc(var(--dm-pw) * 0.028), 36px);
     font-weight: 600;
     line-height: 1.05;
     letter-spacing: -0.02em;

@@ -80,7 +80,7 @@
   &__grid {
     display: grid;
     grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
-    gap: clamp(28px, 4vw, 56px);
+    gap: clamp(28px, calc(var(--dm-pw) * 0.04), 56px);
     align-items: start;
   }
 
@@ -92,7 +92,7 @@
   }
 
   &__stage {
-    padding: clamp(16px, 2.4vw, 30px);
+    padding: clamp(16px, calc(var(--dm-pw) * 0.024), 30px);
     border-radius: var(--k-radius-lg);
     background: var(--k-tint, var(--k-wash));
   }
@@ -140,7 +140,7 @@
   &__title {
     margin: 0;
     font-family: var(--k-display);
-    font-size: clamp(32px, 3.4vw, 46px);
+    font-size: clamp(32px, calc(var(--dm-pw) * 0.034), 46px);
     font-weight: 600;
     line-height: 1.05;
     letter-spacing: -0.025em;
@@ -862,7 +862,7 @@
   &__title {
     margin: 0 0 18px;
     font-family: var(--k-display);
-    font-size: clamp(26px, 2.6vw, 34px);
+    font-size: clamp(26px, calc(var(--dm-pw) * 0.026), 34px);
     font-weight: 600;
     letter-spacing: -0.02em;
     color: var(--k-ink);

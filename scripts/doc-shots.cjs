@@ -6,8 +6,8 @@
 "use strict";
 const path = require("path");
 const fs = require("fs");
-const { chromium } = require("D:/Kalio Sample Shop Claude/kalio-marketplace/node_modules/playwright");
-const sharp = require("D:/Kalio Sample Shop Claude/kalio-marketplace/node_modules/sharp");
+const { chromium } = require("H:/Selldone Projects/Kalio Sample Shop Claude/kalio-marketplace/node_modules/playwright");
+const sharp = require("H:/Selldone Projects/Kalio Sample Shop Claude/kalio-marketplace/node_modules/sharp");
 const base = (process.argv[2] || "https://domino.selldone.shop").replace(/\/$/, "");
 const OUT = path.resolve(__dirname, "../docs/screenshots");
 fs.mkdirSync(OUT, { recursive: true });

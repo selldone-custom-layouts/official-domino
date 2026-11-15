@@ -4,6 +4,14 @@
 
 The shop has no OAuth client for sign-in. Set up the shop's OAuth client id (shop dashboard, or the Selldone MCP connector's `selldone_shop_client_create`). See [Shop Requirements](Shop-Requirements).
 
+## Zoomed out or on a big screen, a section looks squeezed or cut off
+
+The page is a frame of at most 1920px (`--dm-frame-max` in `style/domino-theme.scss`, v-main's limit in `layouts/StorefrontLayout.vue`), and everything that grows with the screen reads the frame's width (`--dm-pw`), never the window's. A new rule written with `vw` (or `100vw` in a padding or a position) runs past the frame on a wide window and squeezes the text beside it, as Domino 1.0.2's journal did at 2880px. Write `calc(var(--dm-pw) * …)` or a percentage instead (a fixed panel may keep `vw`), then run `node scripts/wide-check.cjs http://localhost:9140` (every page at 1100 to 5120px: no long word under 60px, no paragraph under 240px, no word broken, no sideways scroll).
+
+## The loading animation flashes by in half a second
+
+Selldone removes the domain's loading frame 150 ms after the app starts. Domino's in-app splash (`components/domino/DominoSplash.vue`) carries on with the same picture on a session's first page until the page is ready. It does not show on later pages or reloads in the same session, nor in automated browsers (set `localStorage["domino-splash"] = "test"` to see it there). If the hand-over shows a jump, match `SPLASH.art` / `SPLASH.logo` in that file to the frame's config ([Go Live](Go-Live#4-loading-screen)).
+
 ## The shop shows a blank page, or an old page flashes first
 
 A chunk imports `../shop.js`, so the app loads twice through Selldone's redirect. Keep shared code in the `core` chunk and don't use `experimentalMinChunkSize` (both in `vite.config.ts`). When you add a chunk group, keep its rule: a module joins a group only when everything it imports outside core is in the same group. `release.sh` refuses a build with `../shop.js` imports.
@@ -19,7 +27,7 @@ Selldone stores the MIME type it sniffs from each file. Every JS file must start
 | "The manifest must be an array." | Upload with `scripts/kalio-deploy.mjs`, not the plain CLI. |
 | "Archive paths must be safe relative app/ paths." | Remove `dist/index.html`, and use no spaces or brackets in file names. |
 | "Active SVG attributes" / "only passive vector shapes" | Run `node scripts/kalio-svg-flatten.mjs dist/app`. |
-| Request cut off after ~100 s, and the version exists but is empty | Too many files. Stay under ~360 (Domino 1.0.1 has 273; each photo in `assets/domino/` adds one), then upload a **new** version number. |
+| Request cut off after ~100 s, and the version exists but is empty | Too many files. Stay under ~360 (Domino 1.0.3 has 281 with its fourteen photos; each photo in `assets/domino/` adds one), then upload a **new** version number. |
 | 401 | The CLI is signed out (`~/.selldone-dev/.persist` is empty). Run `selldone` → Login. |
 | `node: bad option: --use-system-ca` | Your Node.js is too old for the release scripts. Use Node.js 22.15 or newer. |
 

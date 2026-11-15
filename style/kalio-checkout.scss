@@ -297,7 +297,7 @@
   &__title {
     margin: 0;
     font-family: var(--k-display);
-    font-size: clamp(32px, 3.4vw, 40px);
+    font-size: clamp(32px, calc(var(--dm-pw) * 0.034), 40px);
     font-weight: 600;
     letter-spacing: -0.02em;
     line-height: 1.05;
@@ -2279,7 +2279,7 @@ $k-ico-gift: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewB
     h1 {
       margin: 0;
       font-family: var(--k-display);
-      font-size: clamp(26px, 3vw, 36px);
+      font-size: clamp(26px, calc(var(--dm-pw) * 0.03), 36px);
       font-weight: 600;
       letter-spacing: -0.02em;
       line-height: 1.1;
@@ -3707,7 +3707,7 @@ $k-ico-gift: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewB
   h1 {
     margin: 4px 0 0;
     font-family: var(--k-display);
-    font-size: clamp(24px, 2.6vw, 30px);
+    font-size: clamp(24px, calc(var(--dm-pw) * 0.026), 30px);
     font-weight: 600;
     color: var(--k-ink);
   }

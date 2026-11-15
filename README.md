@@ -61,7 +61,8 @@ Everything is read live from the shop: its title (drawn as the wordmark), collec
 
 - **Header:** a cocoa top bar that scrolls away (the counter's days and hours, the way to pay and "Pickup at <street>" on the left; the language and currency pill, the phone and the email on the right); a cocoa bar that sticks, with **Shop ⌄** (every collection with its best seller's photo and its lowest price, then the deals line), Deals, Journal, About and Contact on the left, the wordmark in the centre, search with live suggestions, the account, the bag with its count and **Order now** on the right. Shop ⌄ opens on a click and closes on a second one. On a phone: the menu button, the wordmark, search and the bag; the menu is a panel from the left with the collections, the pages, the account, a "Language & currency" row and the counter's lines.
 - **Home:** the hero (the shop's name and "Pastry, one by one" beside a photo with the three most-ordered collections over it, a framed photo and the best seller as a cut-out); counters on a scalloped cocoa band (collections, the saving, the counter's days and hours, the ways to receive an order); **About** in the shop's own facts; **The collections people order most** (2 × 2 cards with an outlined numeral, the description and three best sellers); **How ordering works** (piece by piece, the courier's windows, the way to pay, pickup or shipping, and the courier's card); the courier's numbers, the offer card and **<n> ways to receive it**; a gallery of the collections around the most-ordered one; **Today's selection** (six best sellers mixed across collections, as rows with **Add to bag**); a photo band; a marquee of the collections; the journal's four newest posts last.
-- **Photos:** every photo slot (the hero's two, About, How ordering works, the offer card, the photo band, the journal, the footer's texture, each collection's portrait) shows the shop's own photo when the Layout has one, else a designed fallback: a tinted surface with one of the mockup's pastry drawings, or the shop's own pastries as cut-outs. Ready-made prompts for each photo are in the design folder (no words, logos or people on any photo).
+- **Photos:** every photo slot (the hero's two, About, How ordering works, the offer card, the photo band, the journal, the footer's texture, each collection's portrait) shows the shop's own photo when the Layout has one, else a designed fallback: a tinted surface with one of the mockup's pastry drawings, or the shop's own pastries as cut-outs. Domino ships Bakio's fourteen (eight slots, six collection portraits): no words, logos or people on any of them, each cropped for its frame from 390px to 3840px, the slots with words over them left dark there (and given a scrim) so the words read at AA. Photos generated with Magnific (Freepik) for Bakio under the owner's Premium plan.
+- **Wide screens:** the page reads as one composition from 1100px to 5120px (a 4K screen, or Windows zoomed out to 50% or 33%). It is a frame of at most 1920px in the middle: inside, the 1440 design (every size that grows with the screen reads the frame's width, never the window's; the content wrap grows a little, from 1320px to about 1490px; the grids keep their columns), and the photos that run off the edge at 1440 (the hero's, How ordering works, the journal) run to the frame's edge, so the hero and the sections below share the same edges. Around it the header, top bar, footer and the plain coloured bands run their ground to the window's edges; the rest is the page's cream.
 - **Collection page:** the cocoa title band with the collection's name, its line and the saving; every collection as a chip; the filter panel beside the grid; a bar with the active filters as chips and **Sort**; the grid of cards; then a strip of three panels (the courier, the collection's photo, pickup at the counter). Search, Deals and every pastry share the grid: search adds the collections it found as tabs and posts from the journal; Deals opens with the biggest saving today on a cocoa band with its round "Save".
 - **Filters:** the price (two thumbs and short boxes), On offer, then every spec group of the collection's own products (a paragraph-long note is never a filter; long values four at a time with "Show N more"); a side sheet below 1200px; a change dims the cards with "Updating results…", then the new ones fade up.
 - **Card:** the pastry as a cut-out on a rounded plate with a −% roundel and a quick-view eye in the plate's corners, the collection, the name, "Per <unit>" (and "only n left"), the price with the struck was-price, the saving, then **Add to bag**, which turns into "− n +" in place.
@@ -134,7 +135,24 @@ npm run serve            # dev server on http://localhost:9140, reading the shop
 LAYOUT_ID=<your Layout id> SELLDONE_CLI_SRC=<cli clone> bash scripts/release.sh <new version> desk
 ```
 
-Leave `LAYOUT_ID` out on the first upload; use the id printed after it from then on. Never reuse a version number. Keep the build under about 360 files (the release script prints the count; Domino 1.0.1 has 273).
+Leave `LAYOUT_ID` out on the first upload; use the id printed after it from then on. Never reuse a version number. Keep the build under about 360 files (the release script prints the count; Domino 1.0.3 has 281, the photos included).
+
+## Loading screen
+
+Selldone shows a loading screen while the Layout starts. Domino has its own, set per domain (Selldone › your shop › **Domains** › the domain › **Loading**, mode **custom**): the cocoa ground, a fine pistachio ring turning, a cupcake drawing itself inside it, and the shop's name in the header's lower-case italic with the pistachio dot, so nothing jumps when the page arrives. No fake percentage; a still frame for reduced motion; a short fade when Selldone says the app has loaded.
+
+It is generated, so it works with any brand: the motion lives only in the ring and the drawing, never in the name or logo.
+
+```bash
+node scripts/loading/make-loading.cjs scripts/loading/configs/domino.json scripts/loading/out
+#   -> scripts/loading/out/loading.json ({ head, body }) and loading-preview.html to look at
+node scripts/loading/test-loading.cjs scripts/loading/configs/domino.json scripts/loading/test
+#   the same config with a long name, an Arabic name, a wide and a tall logo, at 1440 and 390: TOTAL 0
+```
+
+In `configs/domino.json` put your shop's name (`"name"`) or an https logo (`"logo"`, any shape: it is fitted in a fixed box), the drawing (`"art"`: croissant, cupcake, tart, whisk or none) and your colours. Paste `head` and `body` from `loading.json` into the domain's custom loading (or send them with the Selldone MCP connector's `selldone_domain_loading_update`, mode `custom`). Selldone's limits are checked: head ≤ 15,360 bytes, body ≤ 3,072 bytes, no data URIs. See [Go Live](https://github.com/selldone-custom-layouts/official-domino/wiki/Go-Live#4-loading-screen).
+
+Selldone takes that frame away 150 ms after the app starts (about half a second into a visit), too soon to see it. So the Layout carries on with the same picture itself: [`components/domino/DominoSplash.vue`](components/domino/DominoSplash.vue) draws the same ground, ring, drawing (already drawn) and the shop's live title as the header's wordmark, over the frame, on the **first page of a browser session** only, and fades it out once the shop and the page's data are in, the first photo has decoded (or had 2.5 s) and 1.2 s have passed since the visit began (not with reduced motion); always by 4 s, and at once if the page fails. Its colours are the theme's tokens, so a palette or dark mode re-tints it. Set `SPLASH.art` (and `SPLASH.logo` if your frame shows a logo) in that file to match your frame. `scripts/splash-check.mjs` checks it on the built bundle: the hand-over at 1440 and 390, no splash on the second load, long, Arabic and logo brands, the name's contrast in every palette, slow 3G.
 
 ## Where things are
 
@@ -150,7 +168,7 @@ Leave `LAYOUT_ID` out on the first upload; use the id printed after it from then
 | Shared data and layers (the collections, the catalogue, the shop's facts, one layer at a time) | [`components/domino/dm.ts`](components/domino/dm.ts) |
 | Shared UI (title band, card, quick view, modal, empty state, sample label, numerals, icon lines, the shop's mark) | [`components/domino/ui/`](components/domino/ui/) |
 | Photo slots and their fallbacks | [`components/domino/dm-photos.ts`](components/domino/dm-photos.ts), `DmPhoto.vue`, `DmCuts.vue` |
-| The shop's photos (optional; the slots fall back to drawings and cut-outs) | `assets/domino/<slot>.webp` and `assets/domino/hero-<collection>.webp`, names in `dm-photos.ts` |
+| The shop's photos (Bakio's ship with the Layout; without a file a slot falls back to drawings and cut-outs) | `assets/domino/<slot>.webp` and `assets/domino/hero-<collection>.webp`, names in `dm-photos.ts`; their crops in `style/domino-layout.scss` |
 | Collections, search, deals, every pastry (filters and sort) | [`components/domino/shop/DmListing.vue`](components/domino/shop/DmListing.vue), [`pages/products/`](pages/products/) |
 | Product page and compare | [`components/domino/product/`](components/domino/product/), [`pages/product/`](pages/product/), [`components/domino/compare/`](components/domino/compare/) |
 | Bag and checkout, the delivery sheet | [`pages/basket/cart/`](pages/basket/cart/) with [`components/domino/buy/dm-cart.ts`](components/domino/buy/dm-cart.ts); the delivery sheet in [`pages/basket/cart/SCartShippingOptions.vue`](pages/basket/cart/SCartShippingOptions.vue) |
@@ -159,7 +177,9 @@ Leave `LAYOUT_ID` out on the first upload; use the id printed after it from then
 | Journal, article, About, Terms, Privacy, FAQ, Contact, 404 | [`components/domino/read/`](components/domino/read/), [`pages/blog/`](pages/blog/), [`pages/official/`](pages/official/), [`pages/faq/`](pages/faq/), [`pages/errors/404/`](pages/errors/404/) |
 | Words (English and Arabic) | [`components/kalio/i18n/domino.en.ts`](components/kalio/i18n/domino.en.ts), [`domino.ar.ts`](components/kalio/i18n/domino.ar.ts) (`domino.*`; `bakini.*` for the shared code) |
 | How the mockup became the Layout, reversible choices, data rules and releases | [`DOMINO.md`](DOMINO.md) |
-| The checks | [`scripts/run-checks.sh`](scripts/run-checks.sh) and the tools it names (`CIRCLE_CURRENCIES` for the circle checks) |
+| The checks | [`scripts/run-checks.sh`](scripts/run-checks.sh) and the tools it names (`CIRCLE_CURRENCIES` for the circle checks); the layout checks also run at 2560, 2880 and 3840; [`scripts/wide-check.cjs`](scripts/wide-check.cjs) holds every page from 1100 to 3840 |
+| The page's own width (`--dm-pw`) and the wide-screen grounds | [`style/domino-theme.scss`](style/domino-theme.scss), the end of [`style/domino-layout.scss`](style/domino-layout.scss) |
+| The loading screen (any name or logo) and the in-app splash that continues it | [`scripts/loading/`](scripts/loading/) (`make-loading.cjs`, `test-loading.cjs`, `configs/domino.json`), [`components/domino/DominoSplash.vue`](components/domino/DominoSplash.vue), [`scripts/splash-check.mjs`](scripts/splash-check.mjs) |
 | Release tooling | [`scripts/`](scripts/) |
 | Selldone storefront's original README | [`README.selldone.md`](README.selldone.md) |
 
@@ -168,3 +188,5 @@ Domino started from [Bakini Noir](https://github.com/selldone-custom-layouts/off
 ## Credits and license
 
 Built on the official [Selldone Storefront](https://github.com/selldone/storefront) (MIT License, © Selldone); see [`LICENSE.md`](LICENSE.md). Part of **[Selldone Custom Layouts](https://github.com/selldone-custom-layouts)**.
+
+Photos generated with Magnific (Freepik) for Bakio under the owner's Premium plan.

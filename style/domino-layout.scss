@@ -1550,3 +1550,85 @@ html.dm-dark .dm .dm-map__img {
 .dm .ftr-bot .dm-gdpr .v-img {
   filter: brightness(0) invert(0.82);
 }
+
+/* ━━━━━━━━━━━━ Wider than the frame (15 November 2026) ━━━━━━━━━━━━
+   On a big screen or a Windows zoom-out the window is wider than the page's
+   frame (v-main stops at --dm-frame-max, 1920px, in the middle; see
+   domino-theme.scss). The page stays ONE composition: inside the frame it is
+   the 1440 design (sizes read the frame's width), and the photos that run
+   off the edge at 1440 run to the frame's edge, so the hero, How ordering
+   works and the journal share the same two edges. Around the frame:
+   - the plain coloured bands (the cocoa counters and title bands, the cream
+     About bands, the product's tabs, Contact's facts) run their ground on to
+     the window's edges, as the header, top bar and footer do; a
+     border-image outset paints it past the box without widening the page,
+     moving anything or making it scroll sideways (ink only), and at 1440 it
+     is simply off-screen. Their content stays in the frame;
+   - the two bands with a photo running to the frame's edge (How ordering
+     works, the journal) end at the frame with their photo, so no photo
+     stops short inside a coloured stripe;
+   - the cocoa bands' scalloped edges run on with their ground;
+   - the marquee fades out at the frame's edges instead of stopping dead.
+   Everywhere else the sides are the page's ground. scripts/wide-check.cjs
+   measures every page up to 5120. */
+.dm :is(.nums-band, .pt) {
+  border-image: linear-gradient(var(--dm-cocoa), var(--dm-cocoa)) fill 0 / 0 / 0 100vmax;
+}
+.dm :is(.band:not(.how), .pd-tabs, .ct-info) {
+  border-image: linear-gradient(var(--dm-band), var(--dm-band)) fill 0 / 0 / 0 100vmax;
+}
+/* The text beside How ordering works' and the journal's photos starts on the
+   wrap's edge at every frame width, like every section above and below
+   (the mockup's max-width of hero-pad + 640px, its box set to the column's
+   end, pushed it up to 80px in at 1920). */
+.dm :is(.how-txt, .j-txt) {
+  justify-self: stretch;
+  max-width: none;
+}
+@media (min-width: 1940px) {
+  .dm :is(.nums-band, .pt) {
+    overflow-x: visible;
+  }
+  .dm .nums-band::before,
+  .dm .nums-band::after,
+  .dm .pt::after {
+    left: -100vmax;
+    right: -100vmax;
+  }
+  .dm .marq {
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  }
+}
+
+/* ━━━━━━━━━━━━ The photos' crops (15 November 2026) ━━━━━━━━━━━━
+   Bakio's photos (Magnific, assets/domino/) each fill a frame with
+   object-fit: cover; these say which part of a photo a frame keeps, so no
+   pastry is cut badly from 390px to 3840px (the frames change shape with the
+   width: the hero's big photo is near square, How ordering works is tall at
+   1100px and 4 : 3 on a phone, a collection card is 16 : 10).
+   - The hero's big photo keeps its dark left: the collection names sit
+     there, and the framed photo covers its right half on a desktop.
+   - How ordering works keeps the open box of pastries (its croissant whole)
+     when the frame is tall.
+   - A collection portrait keeps its lower part (50% 78%, the mockup's rule),
+     where the plate stands; the Danish pastries and the tarts, shot from
+     above with four pieces in a square, keep their middle so all four show.
+     A photo is found by its file name (hero-<collection>.<hash>.webp); your
+     own photo with another subject: change or drop its line. */
+.dm .hero-back > .ph-img {
+  object-position: 10% 50%;
+}
+.dm .how-ph > .ph-img {
+  object-position: 20% 50%;
+}
+.dm :is(.cc-ph, .gt, .tri.photo, .acc-ph) img:is([src*="/hero-danish-pastries."], [src*="/hero-tarts."]) {
+  object-position: 50% 60%;
+}
+
+/* How ordering works: its four notes two by two only while each column
+   keeps 240px (1100px gave 210px columns, scripts/wide-check.cjs COLUMN);
+   narrower, one under the other. */
+.dm .feats {
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+}

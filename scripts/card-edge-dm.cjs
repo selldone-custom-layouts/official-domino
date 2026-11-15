@@ -18,14 +18,15 @@
 //   node card-edge-check.cjs <url> [<url> ...]
 //   A url ending in "#cat" opens the site, then the first "-category" link
 //   in-app (cold /product/ and category URLs can get Selldone's SEO page).
-// Env: MIN (default 8), WIDTHS (default "1440,390"), DARK=1 for dark mode.
+// Env: MIN (default 8), WIDTHS (default "1440,390,2560,2880,3840"), DARK=1 for dark mode.
 // Output: one line per url and width, and TOTAL at the end; TOTAL must be 0.
 const path = require("path");
-const PW = process.env.PLAYWRIGHT || "D:/Kalio Sample Shop Claude/kalio-marketplace/node_modules/playwright";
+const PW = process.env.PLAYWRIGHT || "H:/Selldone Projects/Kalio Sample Shop Claude/kalio-marketplace/node_modules/playwright";
 const { chromium } = require(PW);
 
 const MIN = Number(process.env.MIN || 8);
-const WIDTHS = (process.env.WIDTHS || "1440,390").split(",").map(Number);
+/* 2560, 2880, 3840: wider than the page (v-main stops at 1720px; the Windows zoom-out) */
+const WIDTHS = (process.env.WIDTHS || "1440,390,2560,2880,3840").split(",").map(Number);
 
 function check(min) {
   const solid = (c) => c && c !== "transparent" && !/rgba\(\s*\d+,\s*\d+,\s*\d+,\s*0\s*\)/.test(c);

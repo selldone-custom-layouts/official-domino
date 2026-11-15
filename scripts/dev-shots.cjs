@@ -10,7 +10,7 @@
 // checkout API (/buy/) is blocked, so nothing is ordered.
 const path = require("path");
 const fs = require("fs");
-const { chromium } = require(process.env.PLAYWRIGHT || "D:/Kalio Sample Shop Claude/kalio-marketplace/node_modules/playwright");
+const { chromium } = require(process.env.PLAYWRIGHT || "H:/Selldone Projects/Kalio Sample Shop Claude/kalio-marketplace/node_modules/playwright");
 
 const url = process.argv[2] || "http://localhost:9140/";
 const out = path.resolve(process.argv[3] || "docs/dev-shots");

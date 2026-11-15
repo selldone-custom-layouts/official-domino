@@ -379,7 +379,10 @@ export default {
       if (this.is_fullscreen) {
         return "100%";
       } else {
-        return "1720px";
+        /* Domino: the page frame (style/domino-theme.scss --dm-frame-max,
+           1920px; Selldone's default is 1720px). Past it the page sits in
+           the middle with the page's ground on both sides. */
+        return "var(--dm-frame-max, 1920px)";
       }
     },
 

@@ -56,13 +56,41 @@ If `/` shows a Page Builder landing page while `/shop` shows the Layout, the Hom
 - in the dashboard, set **Home** to **Shop**;
 - or call `selldone_shop_home_default_set` with `page_id: "shop"` (for one domain: `selldone_shop_home_domain_set`).
 
-## 4. Verify
+## 4. Loading screen
+
+While the Layout starts, Selldone shows the domain's loading screen. Don't leave Selldone's default animation: Domino has its own, and it is set **per domain**, on the same domain that carries the Layout (Bakio: `domino.selldone.shop`, domain 1248). It is the cocoa ground, a fine pistachio ring turning, a cupcake line drawing itself inside it, and the shop's name in the header's lower-case italic with the pistachio dot, so nothing jumps when the page arrives.
+
+1. **Make it for your brand.** Edit `scripts/loading/configs/domino.json`: your shop's name in `"name"`, or your logo as an **https** link in `"logo"` (any shape; it sits in a fixed box, fitted), the drawing in `"art"` (`croissant`, `cupcake`, `tart`, `whisk` or `none`), your colours (`bg`, `ink`, `muted`, `accent`, `line`, `dot`). Then:
+
+   ```bash
+   node scripts/loading/make-loading.cjs scripts/loading/configs/domino.json scripts/loading/out
+   ```
+
+   It writes `scripts/loading/out/loading.json` (`head` and `body`) and `loading-preview.html` (open it in a browser to see it). It refuses a logo that is not https and checks Selldone's limits: head ≤ 15,360 bytes, body ≤ 3,072 bytes, no data URIs.
+
+2. **Check it with other brands** (optional, needs Playwright and sharp):
+
+   ```bash
+   node scripts/loading/test-loading.cjs scripts/loading/configs/domino.json scripts/loading/test
+   ```
+
+   It renders your config with a very long name, an Arabic name, a wide logo and a tall logo, at 1440 and 390, still and moving, and prints `TOTAL 0` when the brand never leaves the screen, never touches the ring and no logo is cut. Only the ring and the drawing move; the name or logo never does, so any brand works.
+
+3. **Set it on the domain.** In the dashboard: shop › **Domains** › the domain's settings › **Loading** › mode **Custom**, and paste `head` and `body` from `loading.json`. With the Selldone MCP connector: read it first with `selldone_domain_loading_get`, then `selldone_domain_loading_update` with the domain's id, `mode: "custom"`, `head` and `body`, and `confirm: true`. Set it only on the domain that carries Domino; the shop's other domains keep their own.
+
+Open the domain in a fresh tab to see it. Selldone takes the frame away 150 ms after the app starts (about half a second into a visit with a warm cache), and the frame cannot ask for more time. So the Layout continues it: `components/domino/DominoSplash.vue` draws the same picture over the frame (the same ground, ring and drawing, and your shop's live title as the header's wordmark), on the first page of a browser session only, until the page is really ready: the shop and the page's data are in, the first photo has decoded (or has had 2.5 s), and 1.2 s have passed since the visit began. It always goes by 4 s, and at once if the page fails to load. Reduced motion shows a still frame and skips the 1.2 s.
+
+If you changed the frame's drawing or use a logo in it, set the same in `SPLASH` at the top of `DominoSplash.vue` (`art`, `logo`), so the hand-over from the frame to the app cannot be seen. To check it on your build: `node --use-system-ca scripts/splash-check.mjs dist/app <shots folder>` (with `SHOP_URL` set to your domain) after `npm run build-production`.
+
+## 5. Verify
 
 Open the address **without a query** (a query shows the catalogue instead of the home). Then:
 
 - the page source's `window.sdShopLayout` → `"saved"` block names your package and the new version;
 - the header shows the cocoa top bar and your shop's title as the centred italic wordmark, and the home starts with the hero (your shop's name and "Pastry, one by one" beside the photos), then the counters on the scalloped cocoa band;
+- while it loads, the domain shows Domino's loading screen (the ring and the drawing), not Selldone's default;
 - no blank page and no flash of an old design;
+- zoom the browser out to 50% and 33% (or open it on a 4K screen): the page sits in the middle with its 1440 look, the bands' grounds run to the window's edges, and no text column is squeezed;
 - Sign in opens the sign-in sheet with your shop's own ways in;
 - the bag drawer opens from the header, and the checkout lists your delivery ways and their windows;
 - check on a phone-sized screen too.

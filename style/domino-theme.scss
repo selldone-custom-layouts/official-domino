@@ -21,6 +21,69 @@
    scripts/domino-css.cjs) read only these names. The dark build step
    (postcss-dark-tokens, vite.config.ts) skips this file. */
 
+/* ── One page frame, and the page's own width (15 November 2026) ──
+   The owner zooms Windows out (67% ≈ 2150px, 50% = 2880px, 33% ≈ 3840px,
+   more on a big screen). The page must read as ONE composition at any width:
+   - the frame: v-main stops at --dm-frame-max (1920px) and sits in the middle
+     (layouts/StorefrontLayout.vue). Every photo that runs off the edge at 1440
+     (the hero's, How ordering works, the journal) runs to the FRAME's edge,
+     never past it, so the hero and the sections below share the same edges.
+     Beyond the frame the sides are the page's ground; the header, the top bar,
+     the footer and the plain coloured bands run their grounds on to the
+     window (domino-layout.scss, the end), their content in the frame;
+   - the content wrap grows a little on a big frame (1320px at 1440, about
+     1490px at 1920), measured on the page, and the grids keep their columns;
+   - everything that grows with the screen (the gutters, the hero's bleed, the
+     clamp()ed type and rhythm) reads --dm-pw, the width of the frame it sits
+     in, never the window's (vw): Domino 1.0.2's padding from 100vw squeezed
+     the home journal's titles to 13px at 2880, letter by letter.
+   Where --dm-pw comes from:
+   - each page (v-main's child): v-main's own width, through a size container
+     (100cqw). v-main has a set width, so the container changes nothing else;
+     fixed layers inside it still place against the window;
+   - the header and footer (their own wrappers are size containers): their
+     width, at most the frame, so their content lines up with the page's;
+   - :root (the layers): the window, at most the frame.
+   --dm-pw is a registered length: it is worked out where it is set and
+   inherits as pixels, so a card further down that is its own size container
+   (.pc, .cr, …) does not change it. The tokens built from it are set again on
+   each of those, because a custom property's var() is filled in where it is
+   declared. scripts/domino-css.cjs turns the mockup's vw into var(--dm-pw);
+   scripts/wide-check.cjs holds every page at 1100 to 5120. */
+@property --dm-pw {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+@mixin dm-page-width-tokens {
+  --dm-wrap: clamp(1320px, calc(1320px + (var(--dm-pw) - 1440px) * 0.35), 1600px);
+  --dm-gut: max(clamp(16px, calc(var(--dm-pw) * 0.04), 40px), env(safe-area-inset-left));
+  --dm-hero-pad: max(var(--dm-gut), calc((var(--dm-pw) - var(--dm-wrap)) / 2 + var(--dm-gut)));
+  /* the inherited Bakini and Kalio gutters (bakini-theme.scss, kalio-tokens.scss) */
+  --bk-gut: max(clamp(16px, calc(var(--dm-pw) * 0.04), 44px), env(safe-area-inset-left));
+  --bk-gut-r: max(clamp(16px, calc(var(--dm-pw) * 0.04), 44px), env(safe-area-inset-right));
+  --k-gutter: clamp(16px, calc(var(--dm-pw) * 0.024), 24px);
+}
+:root {
+  --dm-frame-max: 1920px;
+  --dm-pw: min(100vw, 1920px);
+  @include dm-page-width-tokens;
+}
+.v-application .v-main,
+.dm-hdrwrap,
+.dm-ftrwrap {
+  container-type: inline-size;
+}
+.v-application .v-main > * {
+  --dm-pw: 100cqw;
+  @include dm-page-width-tokens;
+}
+.dm-hdrwrap > *,
+.dm-ftrwrap > * {
+  --dm-pw: min(100cqw, var(--dm-frame-max));
+  @include dm-page-width-tokens;
+}
+
 :root {
   /* ── Type ── */
   --dm-serif: "Cormorant", "Cormorant Garamond", Georgia, "Times New Roman", serif;
@@ -35,14 +98,12 @@
   --dm-btn-track: 0.12em;
 
   /* ── Shape and rhythm ── */
-  --dm-wrap: 1320px;
-  --dm-gut: max(clamp(16px, 4vw, 40px), env(safe-area-inset-left));
+  /* --dm-wrap, --dm-gut and --dm-hero-pad: the page-width tokens above */
   --dm-hdr-h: 92px; /* at every width, as the mockup renders it */
   --dm-tb-h: 44px; /* the top bar, which scrolls away above the sticky header */
   --dm-frame: 8px;
   --dm-g-gap: 16px;
   --dm-copy-w: 40%;
-  --dm-hero-pad: max(var(--dm-gut), calc((100vw - var(--dm-wrap)) / 2 + var(--dm-gut)));
   --dm-r: 16px;
   --dm-r-btn: 999px;
   --dm-r-chip: 999px;

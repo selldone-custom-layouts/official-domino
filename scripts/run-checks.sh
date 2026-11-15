@@ -20,6 +20,9 @@ LIGHT="{\"$SK\":\"{\\\"palette\\\":\\\"pistachio\\\",\\\"mode\\\":\\\"light\\\"}
 YELLOW="{\"$SK\":\"{\\\"palette\\\":\\\"custom\\\",\\\"custom\\\":\\\"#ffff00\\\",\\\"mode\\\":\\\"dark\\\"}\"}"
 AR="{\"local-shop-bakio\":\"ar\"}"
 PAGES_ALL='home=/,category=/croissants-category,deals=/?filter={"only_has_discount":true},search=/?search=pistachio,product=/product/720375,product2=/product/720359,compare=/comparison?list=p720375_p720378_p720380,blog=/blog,article=/blog/a-guide-to-the-croissant-collection-36221,about=/about-us,terms=/terms,privacy=/privacy,contact=/contact-us,faq=/faq,404=/no-such-page,cart=/basket/PHYSICAL,account=/user'
+# The layout checks also run where the window is wider than the page (v-main stops at 1720px): a 4K
+# screen or the Windows zoom-out (50% = 2880px, 33% ≈ 3840px).
+WIDE="2560,2880,3840"
 PAGES_MAIN='home=/,category=/croissants-category,deals=/?filter={"only_has_discount":true},search=/?search=pistachio,product=/product/720375,compare=/comparison?list=p720375_p720378_p720380,blog=/blog,404=/no-such-page'
 SIGNIN='(async () => { const sleep = (ms) => new Promise((r) => setTimeout(r, ms)); await sleep(800); const s = [...document.querySelectorAll(".acc-nav button")].find((x) => /Sign in/i.test(x.textContent)); if (!s) return "FAIL no sign-in button"; s.click(); await sleep(1200); return true; })()'
 
@@ -34,10 +37,10 @@ run() { # name, command...
 
 run ring-dark   env PAGES="$PAGES_ALL" STORAGE="$DARK"  node "$KIT/single-vendor-shop/ring-sweep.cjs" "$BASE" "$WAIT"
 run ring-light  env PAGES="$PAGES_ALL" STORAGE="$LIGHT" node "$KIT/single-vendor-shop/ring-sweep.cjs" "$BASE" "$WAIT"
-run card-edge   node "$KIT/single-vendor-shop/card-edge-check.cjs" "$BASE/" "$BASE/#cat" "$BASE/?search=pistachio" "$BASE/?filter=%7B%22only_has_discount%22%3Atrue%7D"
-run card-edge-dm-dark  env STORAGE="$DARK"  node "$ROOT/scripts/card-edge-dm.cjs" "$BASE/" "$BASE/#cat" "$BASE/?search=pistachio" "$BASE/?filter=%7B%22only_has_discount%22%3Atrue%7D" "$BASE/blog" "$BASE/about-us" "$BASE/faq" "$BASE/contact-us" "$BASE/user"
-run card-edge-dm-light env STORAGE="$LIGHT" node "$ROOT/scripts/card-edge-dm.cjs" "$BASE/" "$BASE/#cat" "$BASE/?search=pistachio" "$BASE/blog" "$BASE/terms"
-run corner      env PAGES="$PAGES_MAIN" STORAGE="$DARK" node "$KIT/single-vendor-shop/corner-clear-check.cjs" "$BASE" "$WAIT"
+run card-edge   env WIDTHS="1440,390,$WIDE" node "$KIT/single-vendor-shop/card-edge-check.cjs" "$BASE/" "$BASE/#cat" "$BASE/?search=pistachio" "$BASE/?filter=%7B%22only_has_discount%22%3Atrue%7D"
+run card-edge-dm-dark  env WIDTHS="1440,390,$WIDE" STORAGE="$DARK"  node "$ROOT/scripts/card-edge-dm.cjs" "$BASE/" "$BASE/#cat" "$BASE/?search=pistachio" "$BASE/?filter=%7B%22only_has_discount%22%3Atrue%7D" "$BASE/blog" "$BASE/about-us" "$BASE/faq" "$BASE/contact-us" "$BASE/user"
+run card-edge-dm-light env WIDTHS="1440,390,$WIDE" STORAGE="$LIGHT" node "$ROOT/scripts/card-edge-dm.cjs" "$BASE/" "$BASE/#cat" "$BASE/?search=pistachio" "$BASE/blog" "$BASE/terms"
+run corner      env WIDTHS="1920,1440,1280,1024,900,768,390,$WIDE" PAGES="$PAGES_MAIN" STORAGE="$DARK" node "$KIT/single-vendor-shop/corner-clear-check.cjs" "$BASE" "$WAIT"
 # CIRCLE_CURRENCIES="USD,AED,DKK,SAR": the circle checks try each currency (set the way the shop's picker
 # does). LONG=1 reloads after each page, so a product page (a cold /product/ load gets Selldone's SEO page
 # in a headless browser) is checked on its own without LONG.
@@ -58,10 +61,14 @@ run contrast-ar     env PAGES="$PAGES_MAIN" STORAGE="$AR" node "$ROOT/components
 run cart-dark   env SHOP=bakio WAIT="$WAIT" CART=".bag-btn" STORAGE_KEY="$SK" node "$ROOT/components/theme-switcher/tools/cart-audit.cjs" "$BASE" pistachio dark
 run cart-light  env SHOP=bakio WAIT="$WAIT" CART=".bag-btn" STORAGE_KEY="$SK" node "$ROOT/components/theme-switcher/tools/cart-audit.cjs" "$BASE" pistachio light
 run currency    env SHOP=bakio MENU=".menu-btn" MEGA="[aria-controls=dd-shop]" CART=".bag-btn" CATEGORY=/croissants-category DEALS='/?filter={"only_has_discount":true}' node "$ROOT/components/region-switcher/tools/currency-check.cjs" "$BASE" "$WAIT"
-run box-dark    env STORAGE="$DARK"  node "$ROOT/scripts/box-check.cjs" "$BASE" "$WAIT"
-run box-light   env STORAGE="$LIGHT" node "$ROOT/scripts/box-check.cjs" "$BASE" "$WAIT"
-run box-ar      env STORAGE="$AR" STATES=0 node "$ROOT/scripts/box-check.cjs" "$BASE" "$WAIT"
+run box-dark    env WIDTHS="1440,390,$WIDE" STORAGE="$DARK"  node "$ROOT/scripts/box-check.cjs" "$BASE" "$WAIT"
+run box-light   env WIDTHS="1440,390,$WIDE" STORAGE="$LIGHT" node "$ROOT/scripts/box-check.cjs" "$BASE" "$WAIT"
+run box-ar      env WIDTHS="1440,390,$WIDE" STORAGE="$AR" STATES=0 node "$ROOT/scripts/box-check.cjs" "$BASE" "$WAIT"
 run underline-dark  env STORAGE="$DARK"  node "$ROOT/scripts/underline-check.cjs" "$BASE" "$WAIT"
 run underline-light env STORAGE="$LIGHT" WIDTHS=1440 node "$ROOT/scripts/underline-check.cjs" "$BASE" "$WAIT"
+# wide: every page from 1100 to 3840: no text over 12 characters under 60px, no paragraph under 240px,
+# no word broken mid-word, no sideways scroll (scripts/wide-check.cjs).
+run wide        node "$ROOT/scripts/wide-check.cjs" "$BASE" "$WAIT"
+run wide-dark   env STORAGE="$DARK" WIDTHS=1440,2880,3840 node "$ROOT/scripts/wide-check.cjs" "$BASE" "$WAIT"
 run ring-ar     env PAGES="$PAGES_MAIN" STORAGE="$AR" node "$KIT/single-vendor-shop/ring-sweep.cjs" "$BASE" "$WAIT"
 echo "done"

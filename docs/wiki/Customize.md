@@ -49,7 +49,7 @@ Product pictures are changed in the Selldone dashboard, not in the code. The cut
 | The photo band (deep) | `domino-parallax.webp` | 2400 × 1100 | the best seller of each collection in a row |
 | The journal (deep; "Journal" over it) | `domino-journal.webp` | 1200 × 1400 | the deep surface with the whisk drawing |
 | The footer's texture | `domino-footer.webp` | 2400 × 900 | the mockup's fine dot texture on the dark footer |
-| Each collection's portrait | `hero-<collection name>.webp` | 1200 × 1500 | its three best sellers on a plate |
+| Each collection's portrait | `hero-<collection name>.webp` | 900 × 1125 (4 : 5) | its three best sellers on a plate |
 
 `<collection name>` is the collection's address name in Selldone (`cookies`, `mini-cakes`). The repository ships Bakio's six (`hero-cookies`, `hero-croissants`, `hero-danish-pastries`, `hero-mini-cakes`, `hero-muffins`, `hero-tarts`); a collection whose name matches none of them shows its plate. To add a photo:
 
@@ -57,7 +57,9 @@ Product pictures are changed in the Selldone dashboard, not in the code. The cut
 2. Put it in `assets/domino/`. `components/domino/dm-photos.ts` lists the files that exist at build time, so nothing else changes.
 3. Build and release a new version, and check that the file count stays under ~360.
 
-A slot never shows a caption, a file name or a size, with or without its file. Ready-made prompts for Bakio's eight slots are in `domino-design/CODEX-PROMPTS.md` in the project; the six collection portraits are shared with Bakini Noir.
+A slot never shows a caption, a file name or a size, with or without its file.
+
+The repository ships Bakio's fourteen photos (the eight slots and the six portraits). Photos generated with Magnific (Freepik) for Bakio under the owner's Premium plan. Each was made for its frame: the hero's big photo dark on its left and lower-left (the collection names sit there), the offer card's lower 40% black (its words), the journal's lower-left a dark table (the word "Journal"), the top quarter of How ordering works calm, the footer a dark cocoa linen. Replace them with your own at the same sizes. Their crops (which part of a photo a frame shows at each width) are `object-position` rules in `style/domino-layout.scss` ("The photos' crops"); if your photo puts its subject elsewhere, change the percentage there. Words over a photo sit on a scrim, so they keep 4.5 : 1 whatever the photo.
 
 ## Sections and pages
 

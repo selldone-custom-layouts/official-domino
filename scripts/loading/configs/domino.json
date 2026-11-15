@@ -1,0 +1,4 @@
+{ "name": "Bakio", "art": "cupcake", "nameItalic": true, "nameLower": true, "dot": "#b9d398", "nameWeight": 600, "nameTracking": "0",
+  "bg": "#3a2a22", "ink": "#f7f1ea", "muted": "#cdbba9", "accent": "#b9d398", "line": "rgba(247,241,234,.16)",
+  "serif": "Cormorant:ital,wght@1,600", "sans": "Jost:wght@500",
+  "serifCss": "\"Cormorant\",\"Cormorant Garamond\",Georgia,serif", "sansCss": "\"Jost\",system-ui,sans-serif" }
